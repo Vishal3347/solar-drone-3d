@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+
+rlenv/
+venv/
+env/
+
+.vscode/
+
+*.zip
+
+*.pt
+*.pth
+*.onnx
+*.h5
+
+solar_agent*

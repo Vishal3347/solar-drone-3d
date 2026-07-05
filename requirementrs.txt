@@ -1,0 +1,10 @@
+ultralytics
+torch
+torchvision
+torchaudio
+gymnasium
+stable-baselines3
+numpy
+pygame
+matplotlib
+opencv-python
