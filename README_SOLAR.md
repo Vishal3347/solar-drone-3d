@@ -296,11 +296,7 @@ Bounding Boxes (x, y, w, h)
 - **Processing Time**: 50ms per frame
 - **Coverage**: Full drone image FOV
 
-### RL Agent Training
 
-- **Convergence**: 2,000-3,000 episodes
-- **Success Rate**: 87% optimal path finding
-- **Average Reward**: 850+ after training
 
 ---
 
@@ -395,16 +391,6 @@ results = detector.detect_batch(["img1.jpg", "img2.jpg", "img3.jpg"])
 
 ---
 
-## 🐛 Bug Reports & Issues
-
-Found a bug? Have a suggestion?
-
-1. Check [existing issues](https://github.com/Vishal3347/solar-drone-3d/issues)
-2. Open a new issue with:
-   - Clear description
-   - Steps to reproduce
-   - Error messages
-   - System info (Python version, OS, GPU info)
 
 ---
 
@@ -440,33 +426,9 @@ of this software and associated documentation files...
 **Vishal Saha**
 
 - GitHub: [@Vishal3347](https://github.com/Vishal3347)
-- LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/vishal-saha)
+- LinkedIn: www.linkedin.com/in/vishal-saha-4ba36428a
 
 ---
 
-## 📞 Support
 
-For questions or support:
 
-- 📧 Email: your.email@example.com
-- 💬 GitHub Issues: [Open an issue](https://github.com/Vishal3347/solar-drone-3d/issues)
-- 📖 Read documentation in code comments
-
----
-
-## 🙏 Acknowledgments
-
-- YOLOv8 by Ultralytics
-- OpenCV community
-- Gymnasium team
-- PyTorch team
-
----
-
-<div align="center">
-
-### ⭐ If this project helped you, please consider giving it a star! ⭐
-
-[⬆ Back to top](#solar-drone-3d---ai-powered-solar-panel-detection--visualization)
-
-</div>
