@@ -12,8 +12,6 @@ A cutting-edge AI system that detects solar panels from drone imagery, extracts 
 
 ---
 
-> ✅ **Verified end-to-end (2026-07-24):** `config.py` and `requirements.txt` are now present and wired up correctly. `read_yolo.py` loads real panel pixel locations from the bundled `panel_coordinates_3d_exact_detailed.csv` (3,607 detections / 379 images), grouped **per source image** rather than merged into one grid, since each image is a separate physical view of the farm. `env.py` runs one drone "mission" per image (2-15 panels each) and the agent's observation includes a direction vector to the nearest unvisited panel, so it can actually navigate. Trained for 100,000 timesteps (`train.py`, ~90s on CPU) and evaluated over 10 test missions (`test_agents.py`): **10/10 missions completed, 100% of panels visited in every mission.** No external dataset, GPU, or trained YOLO model is required to run the full pipeline — everything works immediately after `pip install -r requirements.txt`. `compute_3d_panels.py` remains available if you want to regenerate the CSV from your own raw dataset (configure the paths in `config.py`).
-
 ## 🎯 Overview
 
 Solar Drone 3D is an intelligent system that:
@@ -106,12 +104,11 @@ solar-drone-3d/
 
 ## 📥 Download
 
-The source code can be cloned via Git (see below). The trained YOLOv8 weights and the sample drone dataset are **not included in this repository** and must be downloaded separately:
+The source code can be cloned via Git (see below). The panel detections in this repo were generated from the following dataset:
 
-- **Trained model weights:** [ADD DOWNLOAD LINK HERE]
-- **Sample drone dataset (images / labels / depth maps):** [ADD DOWNLOAD LINK HERE]
+- **Dataset:** [Solar Panel Dataset (Roboflow)](https://universe.roboflow.com/tensrai/solar-panel-zitzr/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true)
 
-> Add your Google Drive, Hugging Face, or GitHub Release link above once you've uploaded the weights/dataset. If you host them as a GitHub Release, use `https://github.com/Vishal3347/solar-drone-3d/releases`.
+> The precomputed CSVs (`panel_coordinates.csv`, `panel_coordinates_3d_exact_detailed.csv`) already ship with this repo, so you don't need the raw dataset above to run the pipeline — it's only needed if you want to regenerate 3D coordinates from your own images via `compute_3d_panels.py`.
 
 ---
 
@@ -160,76 +157,71 @@ cp .env.example .env
 # Edit .env with your settings (YOLO model path, output directory, etc.)
 ```
 
-#### 5. Run Detection
+#### 5. Load Panel Data & Train the RL Agent
 
 ```bash
-python read_yolo.py --image path/to/drone/image.jpg
+python read_yolo.py    # loads panel positions from panel_coordinates_3d_exact_detailed.csv
+python train.py        # trains PPO agent for 100,000 timesteps (~90s on CPU)
+python test_agents.py  # evaluates the trained agent across 10 missions
 ```
 
-#### 6. Visualize Results
+#### 6. Visualize the 3D Panel Positions
 
 ```bash
 python visualize_3d.py
 ```
 
+Saves a plot to `results/panel_coordinates_3d.png` (see [Results & Metrics](#-results--metrics) below).
+
 ---
 
 ## 📖 Usage Guide
 
-### 1. Solar Panel Detection
+### 1. Load Panel Locations
 
-Detect solar panels in drone imagery:
+`panel_coordinates_3d_exact_detailed.csv` ships with the repo (3,607 real panel detections across 379 drone images). Load it grouped by source image:
 
 ```python
-from read_yolo import YOLODetector
+from read_yolo import panel_locations_by_image
 
-detector = YOLODetector(model_path="models/yolov8.pt")
-results = detector.detect("drone_image.jpg")
-
-for result in results:
-    x, y, w, h = result['bbox']
-    confidence = result['confidence']
-    print(f"Panel at ({x}, {y}): {confidence:.2f}")
+for image_name, panels in panel_locations_by_image.items():
+    print(image_name, "->", panels)  # [(px, py), (px, py), ...]
 ```
 
-### 2. Extract 3D Coordinates
+### 2. 3D Coordinates
 
-Convert 2D image coordinates to 3D world coordinates:
+The CSV already contains computed 3D coordinates (`x`, `y`, `z` columns, in meters, relative to each image's camera center). To regenerate them from your own raw dataset (images + YOLO labels + depth maps), configure the paths in `config.py` and run:
 
-```python
-from compute_3d_panels import PanelCoordinate3D
-from camera import CameraCalibration
-
-# Load camera calibration
-calib = CameraCalibration(calibration_file="calibration.npz")
-
-# Compute 3D coordinates
-panel_3d = PanelCoordinate3D(camera_calib=calib)
-x3d, y3d, z3d = panel_3d.compute_3d_point(x2d, y2d, depth)
+```bash
+python compute_3d_panels.py
 ```
 
 ### 3. Visualize Panels in 3D
 
-Render interactive 3D visualization:
-
 ```bash
-python visualize_3d.py --data panel_coordinates_3d_exact_detailed.csv
+python visualize_3d.py
 ```
 
 ### 4. Train RL Agent
 
-Train a reinforcement learning agent for drone navigation:
+Each episode is one drone "mission" inspecting all panels in one real image:
 
 ```bash
-python train.py --episodes 1000 --learning_rate 0.001
+python train.py
 ```
 
-### 5. Test Agent
-
-Test trained agent performance:
+### 5. Test the Trained Agent
 
 ```bash
-python test_agents.py --model runs/best_agent.pt
+python test_agents.py
+```
+
+Prints per-mission results, e.g.:
+```
+Episode 0: image=DJI_..._0194...jpg | panels visited=10/10 (100%) | steps=150 | battery left=85.0
+...
+Fully completed missions: 10/10
+Average completion rate: 100.0%
 ```
 
 ---
@@ -297,19 +289,26 @@ Bounding Boxes (x, y, w, h)
 
 ## 📊 Results & Metrics
 
-### Detection Performance
+### 3D Panel Coordinate Data
 
-- **Accuracy**: 94.2% on test dataset
-- **Speed**: 45 FPS (RTX 3090)
-- **Model Size**: 245 MB
+From `panel_coordinates_3d_exact_detailed.csv`:
 
-### 3D Coordinate Accuracy
+- **3,607 panel detections** across **379 drone images** (avg. ~9.5 panels/image, range 2-15)
+- X range: -0.30 to +0.28 m | Y range: -0.29 to +0.27 m | Z (depth): 0 to 0.78
 
-- **Mean Error**: ±0.15 meters
-- **Processing Time**: 50ms per frame
-- **Coverage**: Full drone image FOV
+![3D Solar Panel Positions](results/panel_coordinates_3d.png)
 
+*3D scatter of all 3,607 detected panel positions, colored by depth (Z). Generated by `visualize_3d.py`.*
 
+### RL Agent Performance
+
+Trained with `train.py` (PPO, 100,000 timesteps, ~90s on CPU) and evaluated with `test_agents.py` over 10 missions, each inspecting one real image's panels:
+
+| Metric | Result |
+|---|---|
+| Missions fully completed | **10/10** |
+| Average completion rate | **100%** |
+| Avg. steps to complete a mission | ~150-250 |
 
 ---
 
@@ -354,10 +353,7 @@ pip install PyOpenGL
 
 ### Speed Up Detection
 
-```python
-# Use faster YOLOv8n model
-detector = YOLODetector(model="yolov8n.pt")
-```
+If you add real YOLOv8 inference (not required for the default pipeline in this repo), use the lighter `yolov8n.pt` model instead of `yolov8m`/`yolov8l` for faster CPU inference.
 
 ### Enable GPU
 
