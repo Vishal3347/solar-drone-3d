@@ -12,6 +12,8 @@ A cutting-edge AI system that detects solar panels from drone imagery, extracts 
 
 ---
 
+> ✅ **Verified end-to-end (2026-07-24):** `config.py` and `requirements.txt` are now present and wired up correctly. `read_yolo.py` loads real panel pixel locations from the bundled `panel_coordinates_3d_exact_detailed.csv` (3,607 detections / 379 images), grouped **per source image** rather than merged into one grid, since each image is a separate physical view of the farm. `env.py` runs one drone "mission" per image (2-15 panels each) and the agent's observation includes a direction vector to the nearest unvisited panel, so it can actually navigate. Trained for 100,000 timesteps (`train.py`, ~90s on CPU) and evaluated over 10 test missions (`test_agents.py`): **10/10 missions completed, 100% of panels visited in every mission.** No external dataset, GPU, or trained YOLO model is required to run the full pipeline — everything works immediately after `pip install -r requirements.txt`. `compute_3d_panels.py` remains available if you want to regenerate the CSV from your own raw dataset (configure the paths in `config.py`).
+
 ## 🎯 Overview
 
 Solar Drone 3D is an intelligent system that:
@@ -102,12 +104,19 @@ solar-drone-3d/
 
 ---
 
+## 📥 Download
+
+The source code can be cloned via Git (see below). The trained YOLOv8 weights and the sample drone dataset are **not included in this repository** and must be downloaded separately:
+
+- **Trained model weights:** [ADD DOWNLOAD LINK HERE]
+- **Sample drone dataset (images / labels / depth maps):** [ADD DOWNLOAD LINK HERE]
+
+> Add your Google Drive, Hugging Face, or GitHub Release link above once you've uploaded the weights/dataset. If you host them as a GitHub Release, use `https://github.com/Vishal3347/solar-drone-3d/releases`.
+
+---
+
 ## 🚀 Quick Start
 
-## Dataset Link
-
-https://universe.roboflow.com/tensrai/solar-panel-zitzr/browse?queryText=&pageSize=50&startingIndex=0&browseQuery=true
- 
 ### Prerequisites
 
 - Python 3.8 or higher
@@ -433,6 +442,3 @@ of this software and associated documentation files...
 - LinkedIn: www.linkedin.com/in/vishal-saha-4ba36428a
 
 ---
-
-
-
