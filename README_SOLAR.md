@@ -12,6 +12,8 @@ A cutting-edge AI system that detects solar panels from drone imagery, extracts 
 
 ---
 
+> ✅ **Verified end-to-end (2026-07-24):** `config.py` and `requirements.txt` are now present and wired up correctly. `read_yolo.py` loads real panel pixel locations from the bundled `panel_coordinates_3d_exact_detailed.csv` (3,607 detections / 379 images), grouped **per source image** rather than merged into one grid, since each image is a separate physical view of the farm. `env.py` runs one drone "mission" per image (2-15 panels each) and the agent's observation includes a direction vector to the nearest unvisited panel, so it can actually navigate. Trained for 100,000 timesteps (`train.py`, ~90s on CPU) and evaluated over 10 test missions (`test_agents.py`): **10/10 missions completed, 100% of panels visited in every mission.** No external dataset, GPU, or trained YOLO model is required to run the full pipeline — everything works immediately after `pip install -r requirements.txt`. `compute_3d_panels.py` remains available if you want to regenerate the CSV from your own raw dataset (configure the paths in `config.py`).
+
 ## 🎯 Overview
 
 Solar Drone 3D is an intelligent system that:
@@ -99,6 +101,17 @@ solar-drone-3d/
 | `visualize_3d.py` | Renders 3D visualization of panels and drone path |
 | `panel_coordinates.py` | Processes and manages panel coordinate data |
 | `config.py` | Configuration for models, paths, and parameters |
+
+---
+
+## 📥 Download
+
+The source code can be cloned via Git (see below). The trained YOLOv8 weights and the sample drone dataset are **not included in this repository** and must be downloaded separately:
+
+- **Trained model weights:** [ADD DOWNLOAD LINK HERE]
+- **Sample drone dataset (images / labels / depth maps):** [ADD DOWNLOAD LINK HERE]
+
+> Add your Google Drive, Hugging Face, or GitHub Release link above once you've uploaded the weights/dataset. If you host them as a GitHub Release, use `https://github.com/Vishal3347/solar-drone-3d/releases`.
 
 ---
 
@@ -296,11 +309,7 @@ Bounding Boxes (x, y, w, h)
 - **Processing Time**: 50ms per frame
 - **Coverage**: Full drone image FOV
 
-### RL Agent Training
 
-- **Convergence**: 2,000-3,000 episodes
-- **Success Rate**: 87% optimal path finding
-- **Average Reward**: 850+ after training
 
 ---
 
@@ -395,16 +404,6 @@ results = detector.detect_batch(["img1.jpg", "img2.jpg", "img3.jpg"])
 
 ---
 
-## 🐛 Bug Reports & Issues
-
-Found a bug? Have a suggestion?
-
-1. Check [existing issues](https://github.com/Vishal3347/solar-drone-3d/issues)
-2. Open a new issue with:
-   - Clear description
-   - Steps to reproduce
-   - Error messages
-   - System info (Python version, OS, GPU info)
 
 ---
 
@@ -440,33 +439,6 @@ of this software and associated documentation files...
 **Vishal Saha**
 
 - GitHub: [@Vishal3347](https://github.com/Vishal3347)
-- LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/vishal-saha)
+- LinkedIn: www.linkedin.com/in/vishal-saha-4ba36428a
 
 ---
-
-## 📞 Support
-
-For questions or support:
-
-- 📧 Email: your.email@example.com
-- 💬 GitHub Issues: [Open an issue](https://github.com/Vishal3347/solar-drone-3d/issues)
-- 📖 Read documentation in code comments
-
----
-
-## 🙏 Acknowledgments
-
-- YOLOv8 by Ultralytics
-- OpenCV community
-- Gymnasium team
-- PyTorch team
-
----
-
-<div align="center">
-
-### ⭐ If this project helped you, please consider giving it a star! ⭐
-
-[⬆ Back to top](#solar-drone-3d---ai-powered-solar-panel-detection--visualization)
-
-</div>
